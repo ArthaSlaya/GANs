@@ -94,9 +94,72 @@ class DataPipeline:
 
         ds = tfds.load('fashion_mnist', split='train')
 
-        # Normalize image pixel values from [0, 255] to [0, 1]
-        # num_parallel_calls=tf.data.AUTOTUNE enables parallel processing for faster performance.
+        # The `num_parallel_calls=tf.data.AUTOTUNE` parameter in TensorFlow controls
+        # the number of parallel CPU threads used to perform operations in the data pipeline.
+
+        # When using `map` to apply a transformation to each element in the dataset,
+        # setting `num_parallel_calls` enables these transformations to happen in parallel,
+        # rather than one at a time. This is particularly useful for large datasets,
+        # as it speeds up the data processing pipeline.
+
+        # Setting `num_parallel_calls=tf.data.AUTOTUNE`:
+        # - This instructs TensorFlow to automatically determine the optimal number of parallel CPU threads based on available system resources (like the number of CPU cores).
+        # - The `AUTOTUNE` option dynamically adjusts the number of parallel calls to optimize performance, eliminating the need for manual tuning.
+
+        # Benefits of `num_parallel_calls=tf.data.AUTOTUNE`:
+        # 1. Faster Data Processing: By parallelizing transformations, it reduces bottlenecks and allows data to be fed to the model at a faster rate.
+        # 2. Automatic Tuning: TensorFlow chooses the optimal number of parallel calls based on the system’s capabilities, which can vary depending on the hardware (e.g., CPU cores).
+        # 3. Reduces Manual Optimization: Without `AUTOTUNE`, you would need to experiment with different values for `num_parallel_calls` to find the best setting. `AUTOTUNE` automates this.
         ds = ds.map(lambda x: x['image']/255.0, num_parallel_calls=tf.data.AUTOTUNE)
 
-        
+        # Caching and Memory Usage in TensorFlow
+    
+        # 1. Dataset Caching with .cache():
+        #    - By default, .cache() in TensorFlow attempts to load the entire dataset into memory.
+        #      For small datasets like Fashion MNIST (~28MB for 60,000 training samples), this allows for faster access in each epoch by avoiding reloading from disk.
+        #    - For larger datasets, you can specify a file path (e.g., .cache('/path/to/cache_file')) to cache the data on disk rather than in memory.
+        #      Disk-based caching is slower than in-memory caching but useful when working with very large datasets that exceed memory limits.
+        #    - TensorFlow automatically handles caching based on available memory. If the dataset doesn’t fit in memory, caching may be skipped or partially cached without throwing an error.
 
+        # 2. Pixel Data Representation in Fashion MNIST
+        #    - The Fashion MNIST images are stored in 8-bit grayscale format:
+        #        - Each pixel has a value ranging from 0 to 255, represented as an unsigned 8-bit integer (uint8), which requires only 1 byte per pixel.
+        #        - This is an efficient representation, as uint8 is sufficient for grayscale values without excessive memory usage.
+
+        # 3. Memory Consumption for 8-bit Grayscale Images
+        #    - Single Pixel: Each pixel uses 1 byte (uint8) to store values between 0-255.
+        #    - Single Image: A Fashion MNIST image is 28x28 pixels, totaling 784 pixels, requiring 784 bytes per image.
+        #    - Entire Dataset: For 60,000 images, the memory requirement is approximately 60,000 * 784 bytes = ~47 MB.
+
+        # 4. Why Avoid int32 for Grayscale Pixels?
+        #    - Using int32 (4 bytes per pixel) would significantly increase memory usage without adding any benefit, as the 0-255 range can be fully represented by uint8.
+        #    - For example, switching to int32 would increase the dataset size to around 188 MB (4 times more than uint8), which is inefficient for a dataset like Fashion MNIST.
+        ds = ds.cache()
+
+        # Shuffle the dataset to randomize the order of images
+        # Shuffling with buffer size equal to the dataset size ensures good randomization.
+        ds = ds.shuffle(self.buffer_size)
+
+        # Batch the dataset to process multiple images at once
+        # Batching helps in efficient computation by processing groups of images together.
+        ds = ds.batch(self.batch_size)
+
+        # Prefetch batches to improve data loading efficiency
+        # 
+        # Prefetching allows the data pipeline to load the next batch of data in the background
+        # while the current batch is being processed by the model. This means:
+        # 1. The model almost always has a batch ready to process, reducing waiting time.
+        # 2. Training becomes faster and more efficient, as we eliminate idle time for the model.
+        #
+        # Example of prefetching:
+        # - Without prefetch: The model completes processing batch 1, then waits for the pipeline
+        #   to load and preprocess batch 2. This idle waiting time adds up over multiple batches.
+        # - With prefetch: While the model is processing batch 1, the data pipeline is already
+        #   preparing batch 2 in the background. When the model is ready for batch 2, it’s
+        #   instantly available. This overlapping of loading and processing improves performance.
+        #
+        # `tf.data.AUTOTUNE` automatically sets an optimal buffer size for prefetching, making
+        # this process adaptable to different system resources and load, without manual tuning.
+        ds = ds.prefetch(tf.data.AUTOTUNE)
+
+        return ds
