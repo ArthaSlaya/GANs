@@ -104,7 +104,7 @@ class Generator:
             A batch of generated images with shape (num_images, 28, 28, 1).
         """
         # Generate random latent vectors for input
-        random_latent_vector = np.random.normal(loc= 0, scale= 1, size= (num_images, self.latent_dim))
+        random_latent_vectors = np.random.normal(loc= 0, scale= 1, size= (num_images, self.latent_dim))
 
         # Pass latent vectors through the generator model
         generated_images = self.model.predict(random_latent_vectors)
