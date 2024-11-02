@@ -115,6 +115,9 @@ class Generator:
 # Instantiate the generator
 gen = Generator(latent_dim=128)
 
+# Print a summary of the model architecture
+gen.model.summary()
+
 # Generate a batch of 4 synthetic images
 generated_images = gen.generate_images(num_images=4)
 
