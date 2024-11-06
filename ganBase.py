@@ -25,7 +25,6 @@ class BaseGAN(tf.keras.Model):
         discriminator: A Keras model representing the discriminator.
         latent_dim: Integer specifying the dimension of the latent vector. Default is 128.
         """
-        super(BaseGAN, self).__init__()
         self.generator = generator
         self.discriminator = discriminator
         self.latent_dim = latent_dim
@@ -96,3 +95,39 @@ class BaseGAN(tf.keras.Model):
         # Return the losses for both the generator and discriminator
         return {"d_loss": d_loss, "g_loss": g_loss}
 
+import tensorflow as tf
+from tensorflow.keras import models, layers, Layer
+
+class SimpleDense(Layer):
+
+  def __init__(self, units=32):
+      print('1.')
+      super(SimpleDense, self).__init__()
+      self.units = units
+
+  def build(self, input_shape):  # Create the state of the layer (weights)
+    print('2.')
+    w_init = tf.random_normal_initializer()
+    self.w = tf.Variable(
+        initial_value=w_init(shape=(input_shape[-1], self.units),
+                             dtype='float32'),
+        trainable=True)
+    b_init = tf.zeros_initializer()
+    self.b = tf.Variable(
+        initial_value=b_init(shape=(self.units,), dtype='float32'),
+        trainable=True)
+
+  def call(self, inputs):  # Defines the computation from inputs to outputs
+      print('3.')
+      return tf.matmul(inputs, self.w) + self.b
+
+# Instantiates the layer.
+linear_layer = SimpleDense(4)
+
+# This will also call `build(input_shape)` and create the weights.
+y = linear_layer(tf.ones((2, 2)))
+# assert len(linear_layer.weights) == 2, f"linear layer weights : {linear_layer.weights}"
+
+# These weights are trainable, so they're listed in `trainable_weights`:
+# assert len(linear_layer.trainable_weights) == 2
+print(F"trainable weights : {linear_layer.trainable_weights}")
