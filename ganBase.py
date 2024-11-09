@@ -1,133 +1,99 @@
-import tensorflow as tf
-from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.optimizers import Adam
+# import tensorflow as tf
+# from tensorflow.keras.losses import BinaryCrossentropy
+# from tensorflow.keras.optimizers import Adam
+# from tensorflow.keras import Model 
 
-class BaseGAN(tf.keras.Model):
-    """
-    A class representing a basic Generative Adversarial Network (GAN).
+# class BaseGAN(tf.keras.Model):
+#     """
+#     A class representing a Generative Adversarial Network (GAN) for fashion dataset.
 
-    Attributes:
-    generator: The generator model used to create fake images.
-    discriminator: The discriminator model used to distinguish real from fake images.
-    latent_dim: Dimension of the latent space vector used as input for the generator.
-    g_optimizer: Optimizer used for training the generator.
-    d_optimizer: Optimizer used for training the discriminator.
-    g_loss_fn: Loss function for the generator.
-    d_loss_fn: Loss function for the discriminator.
-    """
+#     Attributes:
+#     generator: The generator model used to create fake images.
+#     discriminator: The discriminator model used to distinguish real from fake images.
+#     g_opt: Optimizer used for training the generator.
+#     d_opt: Optimizer used for training the discriminator.
+#     g_loss: Loss function for the generator.
+#     d_loss: Loss function for the discriminator.
+#     """
     
-    def __init__(self, generator, discriminator, latent_dim=128):
-        """
-        Initializes the GAN model with the generator and discriminator.
+#     def __init__(self, generator, discriminator, latent_dim=128):
+#         """
+#         Initializes the FashionGAN model with the generator and discriminator.
 
-        Args:
-        generator: A Keras model representing the generator.
-        discriminator: A Keras model representing the discriminator.
-        latent_dim: Integer specifying the dimension of the latent vector. Default is 128.
-        """
-        self.generator = generator
-        self.discriminator = discriminator
-        self.latent_dim = latent_dim
-        # Initialize optimizers and loss functions for both generator and discriminator
-        self.g_optimizer = Adam(learning_rate=0.0001)
-        self.d_optimizer = Adam(learning_rate=0.00001)
-        self.g_loss_fn = BinaryCrossentropy()
-        self.d_loss_fn = BinaryCrossentropy()
+#         Args:
+#         generator: A Keras model representing the generator.
+#         discriminator: A Keras model representing the discriminator.
+#         *args, **kwargs: Additional arguments to be passed to the base class.
+#         """
+#         # Pass through args and kwargs to base class 
+#         super(BaseGAN, self).__init__(*args, **kwargs)
 
-    def compile(self):
-        """
-        Compiles the GAN model with the specified optimizers and loss functions.
-        """
-        # Call superclass's compile method
-        super(BaseGAN, self).compile()
-        # Set optimizers and loss functions
-        self.g_optimizer = self.g_optimizer
-        self.d_optimizer = self.d_optimizer
-        self.g_loss_fn = self.g_loss_fn
-        self.d_loss_fn = self.d_loss_fn
+#         # Create attributes for generator and discriminator
+#         self.generator = generator
+#         self.discriminator = discriminator
 
-    def train_step(self, real_images):
-        """
-        Performs a single training step for the GAN, including updates for both the generator and discriminator.
+#     def compile(self, g_opt, d_opt, g_loss, d_loss, *args, **kwargs):
+#         """
+#         Compiles the GAN model with the specified optimizers and loss functions.
 
-        Args:
-        real_images: A batch of real images used for training the discriminator.
+#         Args:
+#         g_opt: Optimizer for the generator.
+#         d_opt: Optimizer for the discriminator.
+#         g_loss: Loss function for the generator.
+#         d_loss: Loss function for the discriminator.
+#         *args, **kwargs: Additional arguments to be passed to the base class.
+#         """
+        
+#         # Compile with base class
+#         super(BaseGAN, self).compile(*args, **kwargs)
 
-        Returns:
-        A dictionary containing the discriminator loss ("d_loss") and generator loss ("g_loss").
-        """
-        # Get the batch size from the input images
-        batch_size = tf.shape(real_images)[0]
-        # Generate random latent vectors
-        random_latent_vectors = tf.random.normal(shape=(batch_size, self.latent_dim))
+#         # Create attributes for losses and optimizers
+#         self.g_opt = g_opt
+#         self.d_opt = d_opt
+#         self.g_loss = g_loss
+#         self.d_loss = d_loss
 
-        # Generate fake images using the generator
-        generated_images = self.generator(random_latent_vectors)
+#     def train_step(self, batch):
+#         """
+#         Performs a single training step for the GAN, including updates for both the generator and discriminator.
 
-        # Train the discriminator
-        with tf.GradientTape() as tape:
-            # Pass real and generated images through the discriminator
-            real_output = self.discriminator(real_images)
-            fake_output = self.discriminator(generated_images)
-            # Calculate discriminator loss for real images (target = 1) and fake images (target = 0)
-            d_loss = self.d_loss_fn(tf.ones_like(real_output), real_output) + \
-                     self.d_loss_fn(tf.zeros_like(fake_output), fake_output)
+#         Args:
+#         batch: A batch of real images used for training the discriminator.
 
-        # Compute gradients of the discriminator loss with respect to its trainable weights
-        grads = tape.gradient(d_loss, self.discriminator.trainable_weights)
-        # Apply gradients to update the discriminator weights
-        self.d_optimizer.apply_gradients(zip(grads, self.discriminator.trainable_weights))
+#         Returns:
+#         A dictionary containing the discriminator loss ("d_loss") and generator loss ("g_loss").
+#         """
+#         # Get the real images from the batch
+#         real_images = batch
 
-        # Train the generator
-        with tf.GradientTape() as tape:
-            # Generate new fake images
-            generated_images = self.generator(random_latent_vectors)
-            # Pass generated images through the discriminator
-            fake_output = self.discriminator(generated_images)
-            # Calculate generator loss (target for generated images = 1)
-            g_loss = self.g_loss_fn(tf.ones_like(fake_output), fake_output)
+#         # Generate fake images using the generator
+#         fake_images = self.generator(tf.random.normal(shape=(128, 128, 1)), training= False)
 
-        # Compute gradients of the generator loss with respect to its trainable weights
-        grads = tape.gradient(g_loss, self.generator.trainable_weights)
-        # Apply gradients to update the generator weights
-        self.g_optimizer.apply_gradients(zip(grads, self.generator.trainable_weights))
+#         # Train the discriminator
+#         with tf.GradientTape() as d_tape:
+#             # Pass the real and fake images to the discriminator model
+#             yhat_real = self.discriminator(real_images, training = True)
+#             yhat_fake = self.discriminator(fake_images, training = True)
 
-        # Return the losses for both the generator and discriminator
-        return {"d_loss": d_loss, "g_loss": g_loss}
+#             # Concatenate the real and fake predictions
+#             yhat_realfake = tf.concat([yhat_real, yhat_fake], axis= 0)
 
-import tensorflow as tf
-from tensorflow.keras import models, layers, Layer
+#             # Create labels for real (0) and fake (1) images
+#             y_realfake = tf.concat([tf.zeros_like(yhat_real), tf.ones_like(yhat_fake)], axis= 0)
 
-class SimpleDense(Layer):
+class Manager:
+    def __init__(self):
+        print("This is Init method")
+    def __enter__(self):
+        print("Entering the context")
+        # Setup code (e.g., acquiring a resource)
+        return self
 
-  def __init__(self, units=32):
-      print('1.')
-      super(SimpleDense, self).__init__()
-      self.units = units
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Exiting the context")
+        # Teardown code (e.g., releasing a resource)
 
-  def build(self, input_shape):  # Create the state of the layer (weights)
-    print('2.')
-    w_init = tf.random_normal_initializer()
-    self.w = tf.Variable(
-        initial_value=w_init(shape=(input_shape[-1], self.units),
-                             dtype='float32'),
-        trainable=True)
-    b_init = tf.zeros_initializer()
-    self.b = tf.Variable(
-        initial_value=b_init(shape=(self.units,), dtype='float32'),
-        trainable=True)
-
-  def call(self, inputs):  # Defines the computation from inputs to outputs
-      print('3.')
-      return tf.matmul(inputs, self.w) + self.b
-
-# Instantiates the layer.
-linear_layer = SimpleDense(4)
-
-# This will also call `build(input_shape)` and create the weights.
-y = linear_layer(tf.ones((2, 2)))
-# assert len(linear_layer.weights) == 2, f"linear layer weights : {linear_layer.weights}"
-
-# These weights are trainable, so they're listed in `trainable_weights`:
-# assert len(linear_layer.trainable_weights) == 2
-print(F"trainable weights : {linear_layer.trainable_weights}")
+# Usage
+with Manager() as cm:
+    print(cm)
+    print("Inside the context")
