@@ -56,7 +56,7 @@ class Discriminator:
                 LeakyReLU(0.2),
                 Dropout(0.4),
 
-                # Fourth convolutional block
+                # Fourth convolutional block    
                 Conv2D(256, kernel_size = 5),
                 LeakyReLU(0.2),
                 Dropout(0.4),
