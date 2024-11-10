@@ -70,11 +70,11 @@ class Discriminator:
 
         return model
 
-# Instantiate the Discriminator
-discriminator = Discriminator()
+# # Instantiate the Discriminator
+# discriminator = Discriminator()
 
-# Access the Sequential model
-model = discriminator.model
+# # Access the Sequential model
+# model = discriminator.model
 
-# Print a summary of the model architecture
-model.summary()
+# # Print a summary of the model architecture
+# model.summary()

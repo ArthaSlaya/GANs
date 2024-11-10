@@ -89,38 +89,38 @@ class Generator:
         )
         return model
     
-    def generate_images(self, num_images = 1):
-        """
-        Generates synthetic images by feeding random latent vectors through the generator model.
+#     def generate_images(self, num_images = 1):
+#         """
+#         Generates synthetic images by feeding random latent vectors through the generator model.
 
-        Parameters:
-        ----------
-        num_images : int, optional
-            The number of images to generate (default is 1).
+#         Parameters:
+#         ----------
+#         num_images : int, optional
+#             The number of images to generate (default is 1).
 
-        Returns:
-        -------
-        numpy.ndarray
-            A batch of generated images with shape (num_images, 28, 28, 1).
-        """
-        # Generate random latent vectors for input
-        random_latent_vectors = np.random.normal(loc= 0, scale= 1, size= (num_images, self.latent_dim))
+#         Returns:
+#         -------
+#         numpy.ndarray
+#             A batch of generated images with shape (num_images, 28, 28, 1).
+#         """
+#         # Generate random latent vectors for input
+#         random_latent_vectors = np.random.normal(loc= 0, scale= 1, size= (num_images, self.latent_dim))
 
-        # Pass latent vectors through the generator model
-        generated_images = self.model.predict(random_latent_vectors)
-        return generated_images
+#         # Pass latent vectors through the generator model
+#         generated_images = self.model.predict(random_latent_vectors)
+#         return generated_images
     
-# Example Usage
+# # Example Usage
 
-# Instantiate the generator
-gen = Generator(latent_dim=128)
+# # Instantiate the generator
+# gen = Generator(latent_dim=128)
 
-# Print a summary of the model architecture
-gen.model.summary()
+# # Print a summary of the model architecture
+# gen.model.summary()
 
-# Generate a batch of 4 synthetic images
-generated_images = gen.generate_images(num_images=4)
+# # Generate a batch of 4 synthetic images
+# generated_images = gen.generate_images(num_images=4)
 
-# Check the shape of the generated images
-for i, img in enumerate(generated_images):
-    print(f"Generated image {i+1} shape: {img.shape}")
+# # Check the shape of the generated images
+# for i, img in enumerate(generated_images):
+#     print(f"Generated image {i+1} shape: {img.shape}")

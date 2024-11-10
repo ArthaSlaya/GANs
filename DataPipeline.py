@@ -127,8 +127,8 @@ class DataPipeline:
         # 1. Faster Data Processing: By parallelizing transformations, it reduces bottlenecks and allows data to be fed to the model at a faster rate.
         # 2. Automatic Tuning: TensorFlow chooses the optimal number of parallel calls based on the system’s capabilities, which can vary depending on the hardware (e.g., CPU cores).
         # 3. Reduces Manual Optimization: Without `AUTOTUNE`, you would need to experiment with different values for `num_parallel_calls` to find the best setting. `AUTOTUNE` automates this.
-        ds = ds.map(lambda x: x['image']/255.0, num_parallel_calls=tf.data.AUTOTUNE)
-
+        ds = ds.map(lambda x: tf.cast(x['image'], tf.float32) / 255.0, num_parallel_calls=tf.data.AUTOTUNE)
+        
         # Caching and Memory Usage in TensorFlow
     
         # 1. Dataset Caching with .cache():
