@@ -1,5 +1,6 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, LeakyReLU, Dropout, Flatten, Dense
+from tensorflow.keras import Input
 
 class Discriminator:
     """
@@ -41,6 +42,9 @@ class Discriminator:
         """
         model = Sequential(
             [
+                # Input layer with latent_dim as shape
+                Input(shape=(28, 28, 1)),
+
                 # First convolutional block
                 Conv2D(32, kernel_size = 5, input_shape = (28, 28, 1)), # Convolutional layer with 32 filters
                 LeakyReLU(0.2),  # Leaky ReLU activation to introduce non-linearity

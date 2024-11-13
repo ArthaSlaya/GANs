@@ -22,7 +22,7 @@ class ModelMonitor(Callback):
         Called at the end of each epoch to generate and save images.
     """
     
-    def __init__(self, num_images=3, latent_dim=128, save_dir="images"):
+    def __init__(self, num_images=3, latent_dim=128, save_dir="Images", save_model_dir='Models'):
         """
         Initializes the ModelMonitor callback with the number of images to generate, latent dimension, and save directory.
 
@@ -40,6 +40,8 @@ class ModelMonitor(Callback):
         self.save_dir = save_dir  # Set the directory to save generated images
         # Create the save directory if it does not exist
         os.makedirs(save_dir, exist_ok=True)
+        self.save_model_dir = save_model_dir
+        os.makedirs(save_model_dir, exist_ok=True)
 
     def on_epoch_end(self, epoch, logs=None):
         """
@@ -62,3 +64,15 @@ class ModelMonitor(Callback):
             img = array_to_img(img * 255.0)
             # Save the image with a filename that includes the epoch and image index
             img.save(f"{self.save_dir}/generated_img_{epoch}_{i}.png")
+
+        # Save the generator model
+        generator_save_path = os.path.join(self.save_model_dir, f"generator_epoch_{epoch}.h5")
+        self.model.generator.save(generator_save_path)
+
+        # Save the discriminator model
+        discriminator_save_path = os.path.join(self.save_model_dir, f"discriminator_epoch_{epoch}.h5")
+        self.model.discriminator.save(discriminator_save_path)
+
+        # Save the latest generator and discriminator models for resuming training
+        self.model.generator.save(os.path.join(self.save_model_dir), "generator_latest.h5")
+        self.model.discriminator.save(os.path.join(self.save_model_dir), 'discriminator_latest.h5')

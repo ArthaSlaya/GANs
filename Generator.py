@@ -2,6 +2,7 @@
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Reshape, UpSampling2D, Conv2D, LeakyReLU
+from tensorflow.keras import Input
 import numpy as np
 
 class Generator:
@@ -59,6 +60,9 @@ class Generator:
         """
         model = Sequential(
             [
+                # Input layer with latent_dim as shape
+                Input(shape=(self.latent_dim,)),
+
                 # First layer: Fully connected layer to reshape the random input vector
                 Dense(7 * 7 * 128, input_dim = self.latent_dim), # Output shape: (7*7*128,)
                 LeakyReLU(0.2),

@@ -32,7 +32,7 @@ class BaseGAN(tf.keras.Model):
         Performs one step of training for both the generator and the discriminator.
     """
     
-    def __init__(self, generator, discriminator, *args, **kwargs):
+    def __init__(self, generator, discriminator, latent_dim, *args, **kwargs):
         """
         Initializes the FashionGAN with a generator and discriminator.
 
@@ -53,6 +53,7 @@ class BaseGAN(tf.keras.Model):
         # Create attributes for generator and discriminator
         self.generator = generator
         self.discriminator = discriminator
+        self.latent_dim = latent_dim
 
     def compile(self, g_opt, d_opt, g_loss, d_loss, *args, **kwargs):
         """

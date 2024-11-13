@@ -1,6 +1,7 @@
 from ganBase import BaseGAN
 from Generator import Generator
 from Discriminator import Discriminator
+import os
 
 class FashionGANTrainer(BaseGAN):
     """
@@ -32,3 +33,20 @@ class FashionGANTrainer(BaseGAN):
         
         # Initialize the BaseGAN with generator, discriminator, and latent dimension
         super(FashionGANTrainer, self).__init__(generator, discriminator, latent_dim)
+
+    def load_models(self, generator_path, discriminator_path):
+        """
+        Load saved generator and discriminator models.
+        
+        Parameters:
+        ----------
+        generator_path : str
+            Path to the saved generator model.
+        discriminator_path : str
+            Path to the saved discriminator model.
+        """
+        if os.path.exists(generator_path):
+            self.generator.load_weights(generator_path)
+            print(f"Loaded generator model from {generator_path}")
+        else:
+            print(f"No discriminator model found at {discriminator_path}, starting from scratch.")
