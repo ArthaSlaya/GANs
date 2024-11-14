@@ -12,6 +12,13 @@ dataset = data_pipeline.load_data()  # Load the dataset with preprocessing (norm
 # Initialize and compile the FashionGAN model
 fashion_gan = FashionGANTrainer(latent_dim=128)  # Create an instance of the FashionGAN trainer
 
+# Define paths for saved models
+generator_path = "Models/generator_latest.h5"
+discriminator_path = "Models/discriminator_latest.h5"
+
+# Load the latest saved models if they exist
+fashion_gan.load_models(generator_path, discriminator_path)
+
 # Set up optimizers and loss functions
 g_opt = Adam(learning_rate=0.0001)  # Generator optimizer
 d_opt = Adam(learning_rate=0.00001)  # Discriminator optimizer

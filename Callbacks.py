@@ -65,14 +65,14 @@ class ModelMonitor(Callback):
             # Save the image with a filename that includes the epoch and image index
             img.save(f"{self.save_dir}/generated_img_{epoch}_{i}.png")
 
-        # Save the generator model
-        generator_save_path = os.path.join(self.save_model_dir, f"generator_epoch_{epoch}.h5")
+        # Save the generator model with an epoch-specific name
+        generator_save_path = os.path.join(self.save_model_dir, f"generator_epoch_{epoch}.keras")
         self.model.generator.save(generator_save_path)
-
-        # Save the discriminator model
-        discriminator_save_path = os.path.join(self.save_model_dir, f"discriminator_epoch_{epoch}.h5")
+        
+        # Save the discriminator model with an epoch-specific name
+        discriminator_save_path = os.path.join(self.save_model_dir, f"discriminator_epoch_{epoch}.keras")
         self.model.discriminator.save(discriminator_save_path)
 
         # Save the latest generator and discriminator models for resuming training
-        self.model.generator.save(os.path.join(self.save_model_dir), "generator_latest.h5")
-        self.model.discriminator.save(os.path.join(self.save_model_dir), 'discriminator_latest.h5')
+        self.model.generator.save(os.path.join(self.save_model_dir, "generator_latest.keras"))
+        self.model.discriminator.save(os.path.join(self.save_model_dir, "discriminator_latest.keras"))
